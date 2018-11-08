@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+  <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <script src = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script> 
+        <script src = "https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.min.js"></script>
+        <script src = "https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css"></script> 
+         
+<style>
+body {
+  position: relative;
+  background: #f1f1f1;
+  font-family: 'Arial';
+  overflow: hidden;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+  > * {
+    margin: 5px;
+  }
+}
+
+h2 {
+  color: #000000;
+}
+
+.form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 22px;
+  maxlength: 8;
+  > * {
+    margin: 10px;
+  }
+}
+
+.display {
+  color:#070707;
+  font-size: 28px;
+  letter-spacing: 1px;
+}
+
+input {
+  width: 150px;
+  height: 30px;
+  border: none;
+  outline: none;
+  color: rgb(0, 0, 0);
+  font-size: 20px;
+  text-align: center;
+  padding-left: 10px;
+  box-shadow: 0 3px 0 rgba(rgb(0, 0, 0), 0.5);
+}
+
+.error {
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.no {
+  animation: 0.5s shake infinite ease;
+}
+
+
+
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(2px);
+  }
+  0% {
+    transform: translateX(0);
+  }
+}
+</style>
+  <body>
+    <div id="app" class="container">
+        <h2>Digite o CEP</h2>
+        <div class="form">
+          <input onclick="this.value=''" type="text" v-model="cep" maxlength="8" placeholder="ex: 56302000" />
+        </div>
+        <div class="error">{{error}}</div>
+        <div class="display">{{city}}</div>
+      </div>
+</head>
+    <script>
+    var app = new Vue({
+  el: "#app",
+  data: {
+    city: "",
+    cep: "56302000",
+    error: ""
+  },
+  methods: {
+    getCity: function() {
+      var self = this;
+      $.getJSON("https://viacep.com.br/ws/" + this.cep+"/json", function(result) {
+        if (("erro" in result)) {
+          self.error = "CEP não encontrado";
+          self.city = "";
+          $(".error").addClass("no");
+        } else {
+          self.city = result.logradouro +", "+result.bairro+ " - "+ result.localidade + "/" + result.uf;
+          $(".display").addClass("animated fadeInDown");
+        }
+        console.log(result);
+      });
+    }
+  },
+  watch: {
+    cep: function() {
+      if (this.cep.length === 8) {
+        this.getCity();
+        this.error = "";
+        $(".error").removeClass("no");
+      }
+      if (this.cep.length < 8) {
+        this.city = "";
+        this.error = "CEP Inválido";
+        $(".error").addClass("no");
+         $(".display").removeClass("animated fadeInDown");
+      }
+    }
+  }, 
+  mounted: function(){
+    this.getCity();
+  }
+})
+
+         
+    </script>
+ 
+  </body>
+</html>
+    
